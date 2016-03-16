@@ -22,13 +22,15 @@
       constructor: MyTable,
 	  _init: function() {
 	    var self=this,tb=$(self._el),opt=self._opt,
-		hd=opt.header,hdstr='<thead><tr>';	
-		for(var i=0;i<hd.length;i++) {
-		  var h = hd[i];
-		  hdstr+='<th>'+(h.text||'')+'</th>';			
+		hd=opt.header,hdstr='<thead><tr>';
+		if($('thead', tb).length===0) {
+		  for(var i=0;i<hd.length;i++) {
+		    var h = hd[i];
+		    hdstr+='<th>'+(h.text||'')+'</th>';			
+		  }
+		  hdstr+='</tr></thead>';
+		  tb.append($(hdstr));
 		}
-		hdstr+='</tr></thead>';
-		tb.append($(hdstr));
 	  },
 	  _cell:function(h,row,ind) {
 		var tdstr=null,val=row[h.key]||'';
