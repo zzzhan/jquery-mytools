@@ -106,10 +106,10 @@
 		  this._update(i, j, row[hd[j].key]);
 	    }  
 	  },
-	  uuid: function(row) {
+	  rowId: function(row) {
 		var opt=this._opt;
-		if(typeof opt.uuid==='function') {
-		  return opt.uuid(row);
+		if(typeof opt.rowId==='function') {
+		  return opt.rowId(row);
 		} else {
 		  return row.id;
 		}
@@ -121,7 +121,7 @@
 		  var ret = false;
 		  for(var j=0;!!rows&&j<rows.length;j++) {
 			var row=rows[j];
-			if(id===self.uuid(row)) {
+			if(id===self.rowId(row)) {
 			  ret=true;
 			  break;
 			}
@@ -131,7 +131,7 @@
 		for(var i=0;i<data.length;) {
 		  var tr = $('tr:eq('+(i+1)+')', tb),
 		  item=data[i];
-		  if(isRemove(self.uuid(item))) {
+		  if(isRemove(self.rowId(item))) {
 			data.splice(i,1);
 			tr.remove();
 		  } else {
