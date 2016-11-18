@@ -1,51 +1,70 @@
 (function(factory){
-    "use strict";
-    if (typeof define === 'function' && define.amd) {
-      define(['jquery'], factory);
-    } else if (window.jQuery) {
-      factory(window.jQuery);
-    }	
+  "use strict";
+  if (typeof define === 'function' && define.amd) {
+    define(['jquery'], factory);
+  } else if (window.jQuery) {
+    factory(window.jQuery);
+  }	
 }(function($){
   var MyForm = function(el, opt) {
-    this._el = el;
-    this._opt = opt;
-	$(this._el).on('submit', $.proxy(this._submit, this));
+    var self = this;
+    self._el = el;
+    self._opt = opt;
+    $(self._el).on('submit', $.proxy(self._submit, self));
   };
   MyForm.prototype = {
-	_submit:function(){
-	  var fm = $(this._el);
-	  fm.trigger('mf.submit');
-	  this._doSubmit();
-      return false;
+    _submit:function(){
+      var self = this,
+          el = self._el,
+          fm = $(el);
+      fm.trigger('mf.submit');
+      self._doSubmit();
+        return false;
     },
-	_submited: function(resp) {
-	  var fm = $(this._el);
-	  fm.trigger('mf.submited', resp);
-	},
-	_doSubmit: function() {
-	  var fm = $(this._el);
-	  $.ajax({
-		method:fm.attr('method')||'POST',
-		url:fm.attr('action'),
-		data:fm.serialize(),
-		success:$.proxy(this._submited, this)
-	  });
-	}
+    _submited: function(resp) {
+      var self = this,
+          el = self._el,
+          fm = $(el);
+      fm.trigger('mf.submited', resp);
+    },
+    _doSubmit: function() {
+      var self = this,
+          el = self._el,
+          opt = self._opt||{},
+          fm = $(el),
+          fd = fm.serialize(),
+          ctype = 'application/x-www-form-urlencoded',
+          processData = true;
+      if($(':file', fm).size()>0) {
+        fd = new FormData(el);
+        ctype = false;
+        processData = false;
+      }
+      $.ajax({
+        method:fm.attr('method')||'POST',
+        url:fm.attr('action')||opt.url,
+        contentType:ctype,
+        processData:processData,
+        data:fd,
+        success:$.proxy(this._submited, this)
+      });
+    }
   };
+  
   $.fn.myform = function(option) {
-	var pickerArgs = arguments;
+    var pickerArgs = arguments;
 
-	return this.each(function() {
-		var $this = $(this),
-		inst = $this.data('myform'),
-		options = ((typeof option === 'object') ? option : {});
-		if ((!inst) && (typeof option !== 'string')) {
-			$this.data('myform', new MyForm(this, options));
-		} else {
-			if (typeof option === 'string') {
-				inst[option].apply(inst, Array.prototype.slice.call(pickerArgs, 1));
-			}
-		}
-	});
+    return this.each(function() {
+      var $this = $(this),
+      inst = $this.data('myform'),
+      options = ((typeof option === 'object') ? option : {});
+      if ((!inst) && (typeof option !== 'string')) {
+        $this.data('myform', new MyForm(this, options));
+      } else {
+        if (typeof option === 'string') {
+          inst[option].apply(inst, Array.prototype.slice.call(pickerArgs, 1));
+        }
+      }
+    });
   };
 }));
