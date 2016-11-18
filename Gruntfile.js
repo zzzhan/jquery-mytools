@@ -1,4 +1,8 @@
 module.exports = function (grunt) {
+  var requireJsModules = [];  
+  grunt.file.expand({cwd:"./src"}, "**/*.js").forEach( function (file) {
+    requireJsModules.push(file.replace(/\.js$/, ''));
+  });
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     jshint: {
@@ -12,24 +16,41 @@ module.exports = function (grunt) {
     },
     uglify: {
       options: {
-        banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+        report: "gzip"
       },
       build: {
-		files: {
-		  'dist/<%= pkg.name %>.min.js':'src/*.js'
-		}
+        expand: true,
+        cwd: 'src/',
+        src: '**/*',
+        dest:'dist/',
+        ext: '.min.js'
       }
     },
-	copy: {
+    requirejs: {  
+      options: {
+        baseUrl: "./src",
+        paths: {
+          'jquery':'empty:'
+        }
+      },
+      production: {
+        options: {
+          include: requireJsModules,
+          out: "./dist/<%= pkg.name %>.min.js",
+          optimize: "none"
+        }
+      },
+    },
+    copy: {
       build: {
-	    expand: true,
-	    cwd: 'src/',
-	    src: ['*.*'],
-	    dest:'dist/'	
+        expand: true,
+        cwd: 'src/',
+        src: ['*.*'],
+        dest:'dist/'	
       }
-	},
+    },
     clean: ['dist']
   });
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
-  grunt.registerTask('default', ['jshint','clean','uglify','copy']);
+  grunt.registerTask('default', ['jshint','clean','requirejs','uglify','copy']);
 };
